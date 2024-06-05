@@ -6,7 +6,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # Set CMAKE_MODULE_PATH
-list(APPEND CMAKE_MODULE_PATH "/usr/lib/x86_64-linux-gnu/cmake/OpenVDB")
+list(APPEND CMAKE_MODULE_PATH "${FIND_OPENVDB_PATH}")
+
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -14,13 +15,11 @@ find_package(rclcpp REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(PCL REQUIRED)
-find_package(TBB REQUIRED)
 find_package(OpenVDB REQUIRED)
 
 # Specify additional locations of header files
 include_directories(
   include/vdb2pc
-  ${TBB_INCLUDE_DIR}
   ${OpenVDB_INCLUDE_DIR}
   ${PCL_INCLUDE_DIRS}
 )
@@ -37,7 +36,7 @@ ament_target_dependencies(vdb2pc_lib pcl_conversions sensor_msgs)
 add_executable(test_node src/main_test.cpp)
 
 # Link the executable against the library
-target_link_libraries(vdb2pc_lib ${TBB_LIBRARIES} ${OpenVDB_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(vdb2pc_lib ${Tbb_LIBRARIES} ${OpenVDB_LIBRARIES} ${PCL_LIBRARIES})
 target_link_libraries(vdb2pc_pub_lib vdb2pc_lib)
 target_link_libraries(test_node vdb2pc_pub_lib)
 
