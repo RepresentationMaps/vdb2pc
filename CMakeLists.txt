@@ -11,6 +11,8 @@ list(APPEND CMAKE_MODULE_PATH "/usr/lib/x86_64-linux-gnu/cmake/OpenVDB")
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(pcl_conversions REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(PCL REQUIRED)
 find_package(TBB REQUIRED)
 find_package(OpenVDB REQUIRED)
@@ -25,13 +27,19 @@ include_directories(
 
 # Declare a C++ library
 add_library(vdb2pc_lib src/vdb2pc.cpp)
+add_library(vdb2pc_pub_lib src/vdb2pc_pub.cpp)
 
 # Link against necessary libraries
 ament_target_dependencies(vdb2pc_lib rclcpp)
+ament_target_dependencies(vdb2pc_lib pcl_conversions sensor_msgs)
+
+# Add the executable target (TEST)
+add_executable(test_node src/main_test.cpp)
 
 # Link the executable against the library
 target_link_libraries(vdb2pc_lib ${TBB_LIBRARIES} ${OpenVDB_LIBRARIES} ${PCL_LIBRARIES})
-
+target_link_libraries(vdb2pc_pub_lib vdb2pc_lib)
+target_link_libraries(test_node vdb2pc_pub_lib)
 
 # Install the libraries
 install(
@@ -43,6 +51,21 @@ install(
   INCLUDES DESTINATION include
 )
 
+install(
+  TARGETS vdb2pc_pub_lib
+  EXPORT vdb2pc_pub_lib
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
+
+# Install the executables
+install(
+  TARGETS test_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 # Install include files
 install(
   DIRECTORY include/vdb2pc
@@ -51,6 +74,7 @@ install(
 
 # Export libraries
 ament_export_targets(vdb2pc_lib HAS_LIBRARY_TARGET)
+ament_export_targets(vdb2pc_pub_lib HAS_LIBRARY_TARGET)
 ament_export_dependencies(rclcpp pcl_ros pcl_conversions)
 
 if(BUILD_TESTING)

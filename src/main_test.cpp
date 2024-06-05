@@ -2,84 +2,95 @@
 /*                                Header Files                                */
 /* -------------------------------------------------------------------------- */
 
-/* ----------------------------- VDB2PointCloud ----------------------------- */
-#include "vdb2pc.hpp"
+/* --------------------------------- String --------------------------------- */
+#include <string>
 /* -------------------------------------------------------------------------- */
 
 /* --------------------------------- OpenVDB -------------------------------- */
-#include "openvdb/io/Stream.h"
-#include "openvdb/tools/LevelSetSphere.h"
+#include <openvdb/tools/LevelSetSphere.h>
 /* -------------------------------------------------------------------------- */
 
-/* ----------------------------------- STL ---------------------------------- */
-#include <fstream>
-/* -------------------------------------------------------------------------- */
-
-/* ---------------------------------- MSGS ---------------------------------- */
-#include "sensor_msgs/msg/point_cloud2.hpp"
+/* ----------------------------- VDB2PointCloud ----------------------------- */
+#include "vdb2pc_pub.hpp"
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 
-std::shared_ptr<rclcpp::Node> node = nullptr;
-pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = nullptr;
-rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_ = nullptr;
+/* -------------------------------------------------------------------------- */
+/*                               Global Elements                              */
+/* -------------------------------------------------------------------------- */
+std::shared_ptr<rclcpp::Node> node_ = nullptr;
+openvdb::FloatGrid::Ptr float_grid;
+openvdb::Int32Grid::Ptr int_grid;
+openvdb::BoolGrid::Ptr bool_grid;
+std::shared_ptr<ros_vdb_utilities::VDB2PCPublisher<openvdb::FloatGrid>> float_vdb_publisher_;
+std::shared_ptr<ros_vdb_utilities::VDB2PCPublisher<openvdb::Int32Grid>> int_vdb_publisher_;
+std::shared_ptr<ros_vdb_utilities::VDB2PCPublisher<openvdb::BoolGrid>> bool_vdb_publisher_;
+/* -------------------------------------------------------------------------- */
 
+/* -------------------------------------------------------------------------- */
+/*                                  Functions                                 */
+/* -------------------------------------------------------------------------- */
 void timerCallback()
 {
-    RCLCPP_INFO(node->get_logger(), "Hello from ROS2");
-    sensor_msgs::msg::PointCloud2 cloud_msg;
-    cloud->height = 1;
-    cloud->width = cloud->size();
-    pcl::toROSMsg(*cloud,cloud_msg);
-    cloud_msg.header.stamp = node->now();
-    cloud_msg.header.frame_id = "map";
-    pub_->publish(cloud_msg);
+    RCLCPP_INFO(node_->get_logger(),"Callback");
+    float_vdb_publisher_->publish(*float_grid);
+    int_vdb_publisher_->publish(*int_grid);
+    bool_vdb_publisher_->publish(*bool_grid);
 }
+/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 /*                                    Main                                    */
 /* -------------------------------------------------------------------------- */
 int main(int argc, char** argv)
 {
-    /* ----------------------------------- ROS ---------------------------------- */
+    /* ----------------------------- Initialization ----------------------------- */
     rclcpp::init(argc,argv);
-    node = std::make_shared<rclcpp::Node>("my_node_name");
-    auto timer = node->create_wall_timer(std::chrono::milliseconds(200), timerCallback);
-    pub_ = node->create_publisher<sensor_msgs::msg::PointCloud2>("/test",10);
+    node_ = std::make_shared<rclcpp::Node>("TestNode");
+    auto timer = node_->create_wall_timer(std::chrono::milliseconds(200), timerCallback);
     /* -------------------------------------------------------------------------- */
 
     /* ------------------------------- Processing ------------------------------- */
     openvdb::initialize();
 
-    // openvdb::GridPtrVecPtr grids(new openvdb::GridPtrVec);
-    // std::ifstream ifile;
-    // ifile.open("/root/ros2_ws/src/vdb2pc/armadillo.vdb", std::ios_base::binary);
-    // grids = openvdb::io::Stream(ifile).getGrids();
-    // ifile.close();
-
-    // openvdb::FloatGrid::Ptr grid;
-    // grid = openvdb::gridPtrCast<openvdb::FloatGrid>(grids->at(0)->copyGrid());
-
-    vdb_utilities::VDB2PointCloud<openvdb::FloatGrid> test_obj;
-    cloud = std::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
-
     
+    openvdb::Vec3f float_center(0.0,0.0,0.0);
 
-    openvdb::FloatGrid::Ptr grid;
-    openvdb::Vec3f center(0.0,0.0,0.0);
-    grid = openvdb::tools::createLevelSetSphere<openvdb::FloatGrid>(1.0,center,0.1);
 
-    test_obj.transform(*grid,cloud);
+    float_grid = openvdb::tools::createLevelSetSphere<openvdb::FloatGrid>(1.0,float_center,0.1);
+    
+    int_grid = openvdb::Int32Grid::create(0);
+    openvdb::Int32Grid::Accessor int_grid_accessor = int_grid->getAccessor();
 
-    rclcpp::spin(node);
-    rclcpp::shutdown();
+    bool_grid = openvdb::BoolGrid::create(0);
+    openvdb::BoolGrid::Accessor bool_grid_accessor = bool_grid->getAccessor();
+    
+    for(int x = 0; x < 3; ++x)
+        for(int y = 0; y < 3; ++y)
+            for(int z = 2; z < 5; ++z)
+            {
+                /* -------------------------------- Int Grid -------------------------------- */
+                int_grid_accessor.setValue(openvdb::Coord(x,y-3,z),z);
+                /* -------------------------------------------------------------------------- */
 
-    // Print all active ("on") voxels by means of an iterator.
-    // for(openvdb::FloatGrid::ValueOnCIter iter = grid->cbeginValueOn(); iter; ++iter)
-    //     std::cout << "Grid" << iter.getCoord() << " = " << *iter << std::endl;
+                /* -------------------------------- Bool Grid ------------------------------- */
+                bool_grid_accessor.setValue(openvdb::Coord(x,y+3,z+2),1);
+                /* -------------------------------------------------------------------------- */
+            }
+
+    float_vdb_publisher_ = std::make_shared<ros_vdb_utilities::VDB2PCPublisher<openvdb::FloatGrid>>(std::string("float_test_node").c_str(),std::string("/test_float_topic").c_str(),std::string("map").c_str());
+
+    int_vdb_publisher_ = std::make_shared<ros_vdb_utilities::VDB2PCPublisher<openvdb::Int32Grid>>(std::string("int_test_node").c_str(),std::string("/test_int_topic").c_str(),std::string("map").c_str());
+
+    bool_vdb_publisher_ = std::make_shared<ros_vdb_utilities::VDB2PCPublisher<openvdb::BoolGrid>>(std::string("bool_test_node").c_str(),std::string("/test_bool_topic").c_str(),std::string("map").c_str());
+
+    rclcpp::spin(node_);
     /* -------------------------------------------------------------------------- */
 
+    /* -------------------------------- Shutdown -------------------------------- */
+    rclcpp::shutdown();
+    /* -------------------------------------------------------------------------- */
 
     return 0;
 }
