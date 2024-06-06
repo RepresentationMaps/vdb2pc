@@ -88,11 +88,11 @@ int main(int argc, char** argv)
                 /* -------------------------------------------------------------------------- */
             }
 
-    float_vdb_publisher_ = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::FloatGrid>>(std::string("float_test_node").c_str(),std::string("/test_float_topic").c_str(),std::string("map").c_str());
+    float_vdb_publisher_ = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::FloatGrid>>(node_,std::string("/test_float_topic").c_str(),std::string("map").c_str());
 
-    int_vdb_publisher_ = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::Int32Grid>>(std::string("int_test_node").c_str(),std::string("/test_int_topic").c_str(),std::string("map").c_str());
+    int_vdb_publisher_ = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::Int32Grid>>(node_,std::string("/test_int_topic").c_str(),std::string("map").c_str());
 
-    bool_vdb_publisher_ = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::BoolGrid>>(std::string("bool_test_node").c_str(),std::string("/test_bool_topic").c_str(),std::string("map").c_str());
+    bool_vdb_publisher_ = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::BoolGrid>>(node_,std::string("/test_bool_topic").c_str(),std::string("map").c_str());
 
     rclcpp::spin(node_);
     rclcpp::shutdown();
