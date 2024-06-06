@@ -35,28 +35,10 @@
  * Author: Steve Macenski (steven.macenski@simberobotics.com)
  * Purpose: convert native vdb files to pointclouds
  *********************************************************************/
-
-/* -------------------------------------------------------------------------- */
-/*                                Header Files                                */
-/* -------------------------------------------------------------------------- */
-
-/* --------------------------------- String --------------------------------- */
 #include <string>
-/* -------------------------------------------------------------------------- */
-
-/* --------------------------------- OpenVDB -------------------------------- */
 #include <openvdb/tools/LevelSetSphere.h>
-/* -------------------------------------------------------------------------- */
-
-/* ----------------------------- VDB2PointCloud ----------------------------- */
 #include "vdb2pc_pub.hpp"
-/* -------------------------------------------------------------------------- */
 
-/* -------------------------------------------------------------------------- */
-
-/* -------------------------------------------------------------------------- */
-/*                               Global Elements                              */
-/* -------------------------------------------------------------------------- */
 std::shared_ptr<rclcpp::Node> node_ = nullptr;
 openvdb::FloatGrid::Ptr float_grid;
 openvdb::Int32Grid::Ptr int_grid;
@@ -64,11 +46,7 @@ openvdb::BoolGrid::Ptr bool_grid;
 std::shared_ptr<ros_vdb2pc::VDB2PCPublisher<openvdb::FloatGrid>> float_vdb_publisher_;
 std::shared_ptr<ros_vdb2pc::VDB2PCPublisher<openvdb::Int32Grid>> int_vdb_publisher_;
 std::shared_ptr<ros_vdb2pc::VDB2PCPublisher<openvdb::BoolGrid>> bool_vdb_publisher_;
-/* -------------------------------------------------------------------------- */
 
-/* -------------------------------------------------------------------------- */
-/*                                  Functions                                 */
-/* -------------------------------------------------------------------------- */
 void timerCallback()
 {
     RCLCPP_INFO(node_->get_logger(),"Callback");
@@ -76,20 +54,13 @@ void timerCallback()
     int_vdb_publisher_->publish(*int_grid);
     bool_vdb_publisher_->publish(*bool_grid);
 }
-/* -------------------------------------------------------------------------- */
 
-/* -------------------------------------------------------------------------- */
-/*                                    Main                                    */
-/* -------------------------------------------------------------------------- */
 int main(int argc, char** argv)
 {
-    /* ----------------------------- Initialization ----------------------------- */
     rclcpp::init(argc,argv);
     node_ = std::make_shared<rclcpp::Node>("TestNode");
     auto timer = node_->create_wall_timer(std::chrono::milliseconds(200), timerCallback);
-    /* -------------------------------------------------------------------------- */
 
-    /* ------------------------------- Processing ------------------------------- */
     openvdb::initialize();
 
     
@@ -124,12 +95,7 @@ int main(int argc, char** argv)
     bool_vdb_publisher_ = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::BoolGrid>>(std::string("bool_test_node").c_str(),std::string("/test_bool_topic").c_str(),std::string("map").c_str());
 
     rclcpp::spin(node_);
-    /* -------------------------------------------------------------------------- */
-
-    /* -------------------------------- Shutdown -------------------------------- */
     rclcpp::shutdown();
-    /* -------------------------------------------------------------------------- */
 
     return 0;
 }
-/* -------------------------------------------------------------------------- */
