@@ -48,93 +48,90 @@
 
 namespace vdb2pc{
     template<class T>
-    class VDB2PointCloud
+    void transform(T &vdb_grid, pcl::PointCloud<pcl::PointXYZ> &cloud)
     {
-        public:
-            VDB2PointCloud()
-            {
-                static_assert(std::is_base_of_v<openvdb::GridBase,T>); // Ensures that the type T is derived from the openvdb::GridBase class.
-                static_assert(!std::is_same_v<openvdb::GridBase,T>); // Ensures that the type T is not exactly the same as the openvdb::GridBase class.
-                openvdb::initialize();
-            }
+        /**------------------------------------------------------------------------
+         **                            INFO HEADER
 
-            ~VDB2PointCloud(){}
+            - The keyword typename was introduced to specify that the identifier
+            that follows is a type.
 
-            void transform(T& vdb_grid, pcl::PointCloud<pcl::PointXYZ>& cloud)
-            {
-                /**------------------------------------------------------------------------
-                 **                            INFO HEADER
+            - Iterator classes follow a fairly consistent naming scheme. First,
+            the CIter and Iter suffixes denote const and non-const iterators,
+            i.e., iterators that offer, respectively, read-only and read/write
+            access to the underlying tree or node.
 
-                    - The keyword typename was introduced to specify that the identifier 
-                    that follows is a type. 
+            - Second, iterators over tile and voxel values are denoted either On,
+            Off or All, indicating that they visit only active values, only
+            inactive values, or both active and inactive values.
 
-                    - Iterator classes follow a fairly consistent naming scheme. First, 
-                    the CIter and Iter suffixes denote const and non-const iterators, 
-                    i.e., iterators that offer, respectively, read-only and read/write 
-                    access to the underlying tree or node. 
+            - Grid::cbeginValueOn returns a const iterator to the first of a
+            grid’s active values
 
-                    - Second, iterators over tile and voxel values are denoted either On, 
-                    Off or All, indicating that they visit only active values, only 
-                    inactive values, or both active and inactive values.
+            - Translation from index coordinates (i, j,  k) to world space
+            coordinates (x, y, z) is done with a call to the indexToWorld
+            method, and from world space coordinates to index space coordinates with
+            a call to worldToIndex
 
-                    - Grid::cbeginValueOn returns a const iterator to the first of a 
-                    grid’s active values
+                - openvdb::Vec3d worldSpacePoint = linearTransform->indexToWorld(ijk);
+                - openvdb::Vec3d indexSpacePoint = linearTransform->worldToIndex(worldSpacePoint);
+        *------------------------------------------------------------------------**/
 
-                    - Translation from index coordinates (i, j,  k) to world space 
-                    coordinates (x, y, z) is done with a call to the indexToWorld 
-                    method, and from world space coordinates to index space coordinates with 
-                    a call to worldToIndex 
+        static_assert(std::is_base_of_v<openvdb::GridBase, T>); // Ensures that the type T is derived from the openvdb::GridBase class.
+        static_assert(!std::is_same_v<openvdb::GridBase, T>);   // Ensures that the type T is not exactly the same as the openvdb::GridBase class.
+        openvdb::initialize();
 
-                        - openvdb::Vec3d worldSpacePoint = linearTransform->indexToWorld(ijk);
-                        - openvdb::Vec3d indexSpacePoint = linearTransform->worldToIndex(worldSpacePoint);
-                *------------------------------------------------------------------------**/
-                
-                using ValueOnCIter_ = typename T::ValueOnCIter;
-                for(ValueOnCIter_ iter = vdb_grid.cbeginValueOn(); iter; ++iter)
-                {
-                    const openvdb::Vec3d worldSpacePoint = vdb_grid.indexToWorld(iter.getCoord()); // Compute the location in world space that is the image of `iter.getCoord()`.
+        using ValueOnCIter_ = typename T::ValueOnCIter;
+        for (ValueOnCIter_ iter = vdb_grid.cbeginValueOn(); iter; ++iter)
+        {
+            const openvdb::Vec3d worldSpacePoint = vdb_grid.indexToWorld(iter.getCoord()); // Compute the location in world space that is the image of `iter.getCoord()`.
 
-                    cloud.push_back(pcl::PointXYZ(worldSpacePoint[0],worldSpacePoint[1],worldSpacePoint[2]));
-                }
-            }
-            void transform(T& vdb_grid, pcl::PointCloud<pcl::PointXYZI>& cloud)
-            {  
-                /**------------------------------------------------------------------------
-                 **                            INFO HEADER
+            cloud.push_back(pcl::PointXYZ(worldSpacePoint[0], worldSpacePoint[1], worldSpacePoint[2]));
+        }
+    }
 
-                    - The keyword typename was introduced to specify that the identifier 
-                    that follows is a type. 
+    template<class T>
+    void transform(T &vdb_grid, pcl::PointCloud<pcl::PointXYZI> &cloud)
+    {
+        /**------------------------------------------------------------------------
+         **                            INFO HEADER
 
-                    - Iterator classes follow a fairly consistent naming scheme. First, 
-                    the CIter and Iter suffixes denote const and non-const iterators, 
-                    i.e., iterators that offer, respectively, read-only and read/write 
-                    access to the underlying tree or node. 
+            - The keyword typename was introduced to specify that the identifier
+            that follows is a type.
 
-                    - Second, iterators over tile and voxel values are denoted either On, 
-                    Off or All, indicating that they visit only active values, only 
-                    inactive values, or both active and inactive values.
+            - Iterator classes follow a fairly consistent naming scheme. First,
+            the CIter and Iter suffixes denote const and non-const iterators,
+            i.e., iterators that offer, respectively, read-only and read/write
+            access to the underlying tree or node.
 
-                    - Grid::cbeginValueOn returns a const iterator to the first of a 
-                    grid’s active values
+            - Second, iterators over tile and voxel values are denoted either On,
+            Off or All, indicating that they visit only active values, only
+            inactive values, or both active and inactive values.
 
-                    - Translation from index coordinates (i, j,  k) to world space 
-                    coordinates (x, y, z) is done with a call to the indexToWorld 
-                    method, and from world space coordinates to index space coordinates with 
-                    a call to worldToIndex 
+            - Grid::cbeginValueOn returns a const iterator to the first of a
+            grid’s active values
 
-                        - openvdb::Vec3d worldSpacePoint = linearTransform->indexToWorld(ijk);
-                        - openvdb::Vec3d indexSpacePoint = linearTransform->worldToIndex(worldSpacePoint);
-                *------------------------------------------------------------------------**/
+            - Translation from index coordinates (i, j,  k) to world space
+            coordinates (x, y, z) is done with a call to the indexToWorld
+            method, and from world space coordinates to index space coordinates with
+            a call to worldToIndex
 
-                using ValueOnCIter_ = typename T::ValueOnCIter;
-                for(ValueOnCIter_ iter = vdb_grid.cbeginValueOn(); iter; ++iter)
-                {
-                    const openvdb::Vec3d worldSpacePoint = vdb_grid.indexToWorld(iter.getCoord()); // Compute the location in world space that is the image of `iter.getCoord()`.
-                    auto intensity = iter.getValue();
+                - openvdb::Vec3d worldSpacePoint = linearTransform->indexToWorld(ijk);
+                - openvdb::Vec3d indexSpacePoint = linearTransform->worldToIndex(worldSpacePoint);
+        *------------------------------------------------------------------------**/
 
-                    cloud.push_back(pcl::PointXYZI(worldSpacePoint[0],worldSpacePoint[1],worldSpacePoint[2],intensity));
-                }
-            }
-    };
+        static_assert(std::is_base_of_v<openvdb::GridBase, T>); // Ensures that the type T is derived from the openvdb::GridBase class.
+        static_assert(!std::is_same_v<openvdb::GridBase, T>);   // Ensures that the type T is not exactly the same as the openvdb::GridBase class.
+        openvdb::initialize();
+
+        using ValueOnCIter_ = typename T::ValueOnCIter;
+        for (ValueOnCIter_ iter = vdb_grid.cbeginValueOn(); iter; ++iter)
+        {
+            const openvdb::Vec3d worldSpacePoint = vdb_grid.indexToWorld(iter.getCoord()); // Compute the location in world space that is the image of `iter.getCoord()`.
+            auto intensity = iter.getValue();
+
+            cloud.push_back(pcl::PointXYZI(worldSpacePoint[0], worldSpacePoint[1], worldSpacePoint[2], intensity));
+        }
+    }
 }; // namespace vdb2pc
 #endif // VDB2PC_HPP_

@@ -54,7 +54,6 @@ namespace ros_vdb2pc
             rclcpp::TimerBase::SharedPtr timer_;
             rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pc_publisher_;
             std::string reference_frame;
-            vdb2pc::VDB2PointCloud<T> vdb_converter_;
 
         public:
             VDB2PCPublisher(const std::shared_ptr<rclcpp::Node>& node_handler, const std::string& topic_name_, const std::string& reference_frame_) : node_handler_(node_handler)
@@ -70,7 +69,7 @@ namespace ros_vdb2pc
                 pcl::PointCloud<pcl::PointXYZI> point_cloud_;
                 sensor_msgs::msg::PointCloud2 point_cloud_msg_;
 
-                this->vdb_converter_.transform(grid_,point_cloud_);
+                vdb2pc::transform(grid_,point_cloud_);
                 point_cloud_.height = 1;
                 point_cloud_.width = point_cloud_.size();
 
