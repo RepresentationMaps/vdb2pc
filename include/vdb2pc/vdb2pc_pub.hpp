@@ -53,37 +53,33 @@ namespace ros_vdb2pc
             const std::shared_ptr<rclcpp::Node> node_handler_;
             rclcpp::TimerBase::SharedPtr timer_;
             rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pc_publisher_;
-            std::string reference_frame;
+            std::string reference_frame_;
 
         public:
-            VDB2PCPublisher(const std::shared_ptr<rclcpp::Node>& node_handler, const std::string& topic_name_, const std::string& reference_frame_) : node_handler_(node_handler)
-            {
-                this->pc_publisher_ = node_handler_->create_publisher<sensor_msgs::msg::PointCloud2>(topic_name_,1);
-                this->reference_frame = reference_frame_;
-            }
+            VDB2PCPublisher(const std::shared_ptr<rclcpp::Node>& node_handler, const std::string& topic_name, const std::string& reference_frame) : node_handler_(node_handler),pc_publisher_(node_handler_->create_publisher<sensor_msgs::msg::PointCloud2>(topic_name,1)),reference_frame_(reference_frame){}
            
             ~VDB2PCPublisher(){}
 
-            void publish(T& grid_)
+            void publish(T& grid)
             {
-                pcl::PointCloud<pcl::PointXYZI> point_cloud_;
-                sensor_msgs::msg::PointCloud2 point_cloud_msg_;
+                pcl::PointCloud<pcl::PointXYZI> point_cloud;
+                sensor_msgs::msg::PointCloud2 point_cloud_msg;
 
-                vdb2pc::transform(grid_,point_cloud_);
-                point_cloud_.height = 1;
-                point_cloud_.width = point_cloud_.size();
+                vdb2pc::transform(grid,point_cloud);
+                point_cloud.height = 1;
+                point_cloud.width = point_cloud.size();
 
-                pcl::toROSMsg(point_cloud_,point_cloud_msg_);
+                pcl::toROSMsg(point_cloud,point_cloud_msg);
 
-                point_cloud_msg_.header.stamp = node_handler_->now();
-                point_cloud_msg_.header.frame_id = this->reference_frame;
+                point_cloud_msg.header.stamp = node_handler_->now();
+                point_cloud_msg.header.frame_id = this->reference_frame_;
 
-                this->pc_publisher_->publish(point_cloud_msg_);
+                this->pc_publisher_->publish(point_cloud_msg);
             }
 
-            void updateReferenceFrame(const std::string& reference_frame_)
+            void updateReferenceFrame(const std::string& reference_frame)
             {
-                this->reference_frame = reference_frame_;
+                this->reference_frame_ = reference_frame;
             }
     };
 }; // namespace ros_vdb2pc
