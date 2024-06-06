@@ -39,62 +39,55 @@
 #include <openvdb/tools/LevelSetSphere.h>
 #include "vdb2pc_pub.hpp"
 
-std::shared_ptr<rclcpp::Node> node_ = nullptr;
-openvdb::FloatGrid::Ptr float_grid;
-openvdb::Int32Grid::Ptr int_grid;
-openvdb::BoolGrid::Ptr bool_grid;
-std::shared_ptr<ros_vdb2pc::VDB2PCPublisher<openvdb::FloatGrid>> float_vdb_publisher_;
-std::shared_ptr<ros_vdb2pc::VDB2PCPublisher<openvdb::Int32Grid>> int_vdb_publisher_;
-std::shared_ptr<ros_vdb2pc::VDB2PCPublisher<openvdb::BoolGrid>> bool_vdb_publisher_;
-
-void timerCallback()
+template<class T, class U>
+void timerCallback(const std::shared_ptr<rclcpp::Node>& node, const T& grid, const U& publisher, const std::string& message = "Grid published")
 {
-    RCLCPP_INFO(node_->get_logger(),"Callback");
-    float_vdb_publisher_->publish(*float_grid);
-    int_vdb_publisher_->publish(*int_grid);
-    bool_vdb_publisher_->publish(*bool_grid);
+    RCLCPP_INFO(node->get_logger(),message.c_str());
+    publisher->publish(*grid);
 }
 
 int main(int argc, char** argv)
 {
+
     rclcpp::init(argc,argv);
-    node_ = std::make_shared<rclcpp::Node>("TestNode");
-    auto timer = node_->create_wall_timer(std::chrono::milliseconds(200), timerCallback);
+    std::shared_ptr<rclcpp::Node> node = std::make_shared<rclcpp::Node>("TestNode");
 
     openvdb::initialize();
 
-    
+    openvdb::FloatGrid::Ptr float_grid;
     openvdb::Vec3f float_center(0.0,0.0,0.0);
-
-
     float_grid = openvdb::tools::createLevelSetSphere<openvdb::FloatGrid>(1.0,float_center,0.1);
-    
+
+    openvdb::Int32Grid::Ptr int_grid;
     int_grid = openvdb::Int32Grid::create(0);
     openvdb::Int32Grid::Accessor int_grid_accessor = int_grid->getAccessor();
 
+    openvdb::BoolGrid::Ptr bool_grid;
     bool_grid = openvdb::BoolGrid::create(0);
     openvdb::BoolGrid::Accessor bool_grid_accessor = bool_grid->getAccessor();
-    
+
     for(int x = 0; x < 3; ++x)
         for(int y = 0; y < 3; ++y)
             for(int z = 2; z < 5; ++z)
             {
-                /* -------------------------------- Int Grid -------------------------------- */
                 int_grid_accessor.setValue(openvdb::Coord(x,y-3,z),z);
-                /* -------------------------------------------------------------------------- */
-
-                /* -------------------------------- Bool Grid ------------------------------- */
                 bool_grid_accessor.setValue(openvdb::Coord(x,y+3,z+2),1);
-                /* -------------------------------------------------------------------------- */
             }
 
-    float_vdb_publisher_ = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::FloatGrid>>(node_,std::string("/test_float_topic").c_str(),std::string("map").c_str());
 
-    int_vdb_publisher_ = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::Int32Grid>>(node_,std::string("/test_int_topic").c_str(),std::string("map").c_str());
+    std::shared_ptr<ros_vdb2pc::VDB2PCPublisher<openvdb::FloatGrid>> float_vdb_publisher = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::FloatGrid>>(node,std::string("/test_float_topic").c_str(),std::string("map").c_str());
 
-    bool_vdb_publisher_ = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::BoolGrid>>(node_,std::string("/test_bool_topic").c_str(),std::string("map").c_str());
+    std::shared_ptr<ros_vdb2pc::VDB2PCPublisher<openvdb::Int32Grid>> int_vdb_publisher = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::Int32Grid>>(node,std::string("/test_int_topic").c_str(),std::string("map").c_str());
 
-    rclcpp::spin(node_);
+    std::shared_ptr<ros_vdb2pc::VDB2PCPublisher<openvdb::BoolGrid>> bool_vdb_publisher = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::BoolGrid>>(node,std::string("/test_bool_topic").c_str(),std::string("map").c_str());
+
+    auto float_grid_timer = node->create_wall_timer(std::chrono::milliseconds(200),[&node,&float_grid,&float_vdb_publisher](){timerCallback(node,float_grid,float_vdb_publisher,std::string("Float Grid Published!"));});
+
+    auto int_grid_timer = node->create_wall_timer(std::chrono::milliseconds(200),[&node,&int_grid,&int_vdb_publisher](){timerCallback(node,int_grid,int_vdb_publisher,std::string("Int Grid Published!"));});
+
+    auto bool_grid_timer = node->create_wall_timer(std::chrono::milliseconds(200),[&node,&bool_grid,&bool_vdb_publisher](){timerCallback(node,bool_grid,bool_vdb_publisher,std::string("Bool Grid Published!"));});
+
+    rclcpp::spin(node);
     rclcpp::shutdown();
 
     return 0;
