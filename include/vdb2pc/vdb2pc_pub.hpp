@@ -72,14 +72,14 @@ namespace ros_vdb2pc
                 pcl::toROSMsg(point_cloud,point_cloud_msg);
 
                 point_cloud_msg.header.stamp = node_handler_->now();
-                point_cloud_msg.header.frame_id = this->reference_frame_;
+                point_cloud_msg.header.frame_id = reference_frame_;
 
-                this->pc_publisher_->publish(point_cloud_msg);
+                pc_publisher_->publish(point_cloud_msg);
             }
 
             void updateReferenceFrame(const std::string& reference_frame)
             {
-                this->reference_frame_ = reference_frame;
+                reference_frame_ = reference_frame;
             }
     };
 }; // namespace ros_vdb2pc
