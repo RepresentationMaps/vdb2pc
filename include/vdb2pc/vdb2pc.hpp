@@ -46,37 +46,11 @@
 #include <pcl/point_cloud.h> // For point cloud data structures (e.g., pcl::PointCloud)
 #include <rclcpp/rclcpp.hpp>
 
-namespace vdb2pc{
+namespace vdb2pc
+{
     template<class T>
     void transform(T &vdb_grid, pcl::PointCloud<pcl::PointXYZ> &cloud)
     {
-        /**------------------------------------------------------------------------
-         **                            INFO HEADER
-
-            - The keyword typename was introduced to specify that the identifier
-            that follows is a type.
-
-            - Iterator classes follow a fairly consistent naming scheme. First,
-            the CIter and Iter suffixes denote const and non-const iterators,
-            i.e., iterators that offer, respectively, read-only and read/write
-            access to the underlying tree or node.
-
-            - Second, iterators over tile and voxel values are denoted either On,
-            Off or All, indicating that they visit only active values, only
-            inactive values, or both active and inactive values.
-
-            - Grid::cbeginValueOn returns a const iterator to the first of a
-            grid’s active values
-
-            - Translation from index coordinates (i, j,  k) to world space
-            coordinates (x, y, z) is done with a call to the indexToWorld
-            method, and from world space coordinates to index space coordinates with
-            a call to worldToIndex
-
-                - openvdb::Vec3d worldSpacePoint = linearTransform->indexToWorld(ijk);
-                - openvdb::Vec3d indexSpacePoint = linearTransform->worldToIndex(worldSpacePoint);
-        *------------------------------------------------------------------------**/
-
         static_assert(std::is_base_of_v<openvdb::GridBase, T>); // Ensures that the type T is derived from the openvdb::GridBase class.
         static_assert(!std::is_same_v<openvdb::GridBase, T>);   // Ensures that the type T is not exactly the same as the openvdb::GridBase class.
         openvdb::initialize();
