@@ -37,7 +37,7 @@
  *********************************************************************/
 #include <string>
 #include <openvdb/tools/LevelSetSphere.h>
-#include "vdb2pc_pub.hpp"
+#include "vdb2pc_publisher.hpp"
 
 template<class T, class U>
 void timerCallback(const std::shared_ptr<rclcpp::Node>& node, const T& grid, const U& publisher, const std::string& message = "Grid published")
@@ -75,11 +75,11 @@ int main(int argc, char** argv)
             }
 
 
-    std::shared_ptr<ros_vdb2pc::VDB2PCPublisher<openvdb::FloatGrid>> float_vdb_publisher = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::FloatGrid>>(node,std::string("/test_float_topic").c_str(),std::string("map").c_str());
+    std::shared_ptr<vdb2pc::ros_utils::VDB2PCPublisher<openvdb::FloatGrid>> float_vdb_publisher = std::make_shared<vdb2pc::ros_utils::VDB2PCPublisher<openvdb::FloatGrid>>(node,std::string("/test_float_topic").c_str(),std::string("map").c_str());
 
-    std::shared_ptr<ros_vdb2pc::VDB2PCPublisher<openvdb::Int32Grid>> int_vdb_publisher = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::Int32Grid>>(node,std::string("/test_int_topic").c_str(),std::string("map").c_str());
+    std::shared_ptr<vdb2pc::ros_utils::VDB2PCPublisher<openvdb::Int32Grid>> int_vdb_publisher = std::make_shared<vdb2pc::ros_utils::VDB2PCPublisher<openvdb::Int32Grid>>(node,std::string("/test_int_topic").c_str(),std::string("map").c_str());
 
-    std::shared_ptr<ros_vdb2pc::VDB2PCPublisher<openvdb::BoolGrid>> bool_vdb_publisher = std::make_shared<ros_vdb2pc::VDB2PCPublisher<openvdb::BoolGrid>>(node,std::string("/test_bool_topic").c_str(),std::string("map").c_str());
+    std::shared_ptr<vdb2pc::ros_utils::VDB2PCPublisher<openvdb::BoolGrid>> bool_vdb_publisher = std::make_shared<vdb2pc::ros_utils::VDB2PCPublisher<openvdb::BoolGrid>>(node,std::string("/test_bool_topic").c_str(),std::string("map").c_str());
 
     auto float_grid_timer = node->create_wall_timer(std::chrono::milliseconds(200),[&node,&float_grid,&float_vdb_publisher](){timerCallback(node,float_grid,float_vdb_publisher,std::string("Float Grid Published!"));});
 

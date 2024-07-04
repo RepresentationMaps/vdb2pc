@@ -35,6 +35,6 @@
  * Author: Steve Macenski (steven.macenski@simberobotics.com)
  * Purpose: convert native vdb files to pointclouds
  *********************************************************************/
-#include "vdb2pc_pub.hpp"
+#include "vdb2pc_publisher.hpp"
 
-using namespace ros_vdb2pc;
+using namespace vdb2pc::ros_utils;

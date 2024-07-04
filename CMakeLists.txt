@@ -64,7 +64,7 @@ include_directories(
 
 # Declare a C++ library
 add_library(vdb2pc_lib src/vdb2pc.cpp)
-add_library(vdb2pc_pub_lib src/vdb2pc_pub.cpp)
+add_library(vdb2pc_pub_lib src/vdb2pc_publisher.cpp)
 
 # Link against necessary libraries
 ament_target_dependencies(vdb2pc_lib rclcpp)
