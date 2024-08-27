@@ -49,7 +49,13 @@ namespace vdb2pc
                 std::string reference_frame_;
 
             public:
-                VDB2PCPublisher(const std::shared_ptr<rclcpp::Node>& node_handler, const std::string& topic_name, const std::string& reference_frame) : node_handler_(node_handler),pc_publisher_(node_handler_->create_publisher<sensor_msgs::msg::PointCloud2>(topic_name,1)),reference_frame_(reference_frame){}
+                VDB2PCPublisher(
+                    const std::shared_ptr<rclcpp::Node>& node_handler,
+                    const std::string& topic_name,
+                    const std::string& reference_frame):
+                node_handler_(node_handler),
+                pc_publisher_(node_handler_->create_publisher<sensor_msgs::msg::PointCloud2>(topic_name, 1)),
+                reference_frame_(reference_frame){}
             
                 ~VDB2PCPublisher(){}
 
