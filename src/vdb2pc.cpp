@@ -2,13 +2,14 @@
  *
  * Software License Agreement
  * 
- * Copyright (c) 2024, [Your Name/Organization]
+ * Copyright (c) 2024, [Anonymous]
  * All rights reserved.
  * 
- * This file is part of VDB2PC, derived from [Original Project Name].
+ * This file is part of VDB2PC, derived from spatio_temporal_voxel_layer
+ * (https://github.com/SteveMacenski/spatio_temporal_voxel_layer/tree/ros2).
  * Original work Copyright (c) 2018, Simbe Robotics, Inc.
  * 
- * Modifications Copyright (c) 2024, [Your Name/Organization]
+ * Modifications Copyright (c) 2024, [Anonymous]
  * 
  * This software is licensed under the terms of the LGPLv3 license.
  * See the LICENSE file in the project root for more information.
@@ -21,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  * 
- * Authors: Name (email), Name (email)
+ * Authors: Anonymous
  * Purpose: convert VDB structures into PointCloud
  * 
  *********************************************************************/
