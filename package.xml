@@ -4,10 +4,10 @@
   <name>vdb2pc</name>
   <version>0.0.0</version>
   <description>Utilities to transform vdb grids into pointclouds</description>
-  <maintainer email="anon@anon.ymous">Anon Ymous</maintainer>
+  <maintainer email="lorenzo.ferrini@pal-robotics.com">Anon Ymous</maintainer>
   <license>LGPL-3.0-only</license>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
