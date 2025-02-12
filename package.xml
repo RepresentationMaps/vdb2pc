@@ -9,12 +9,14 @@
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
+  <build_depend>libopenvdb-dev</build_depend>
+
+  <exec_depend>libopenvdb8.2</exec_depend>
+
   <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
   <depend>pcl_conversions</depend>
   <depend>pcl_ros</depend>
-  <depend>libopenvdb8.2</depend>
-  <depend>libopenvdb-dev</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
