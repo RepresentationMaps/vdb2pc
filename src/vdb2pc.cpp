@@ -45,3 +45,10 @@
  *********************************************************************/
 
 #include "vdb2pc.hpp"
+
+// Explicit instantiations
+template void vdb2pc::transform<openvdb::Int32Grid>(
+    openvdb::Int32Grid& vdb_grid, pcl::PointCloud<pcl::PointXYZ>& cloud);
+
+template void vdb2pc::transform<openvdb::Int32Grid>(
+    openvdb::Int32Grid& vdb_grid, pcl::PointCloud<pcl::PointXYZI>& cloud);

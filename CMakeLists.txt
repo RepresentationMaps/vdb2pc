@@ -5,19 +5,23 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+list(APPEND CMAKE_MODULE_PATH "/usr/lib/x86_64-linux-gnu/cmake/OpenVDB")
+
 find_package(ament_cmake_auto REQUIRED)
+find_package(OpenVDB MODULE REQUIRED)
 ament_auto_find_build_dependencies()
 
 include_directories(
   include/vdb2pc
 )
 
-ament_auto_add_library(${PROJECT_NAME}_lib
+ament_auto_add_library(${PROJECT_NAME}_lib SHARED
   src/vdb2pc.cpp
   src/vdb2pc_publisher.cpp
 )
 
-target_link_libraries(vdb2pc_lib ${OpenVDB_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_lib 
+ ${OpenVDB_LIBRARIES} ${PCL_LIBRARIES})
 
 ament_export_include_directories(
   include

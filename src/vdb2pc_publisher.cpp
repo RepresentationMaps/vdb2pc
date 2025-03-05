@@ -45,3 +45,6 @@
  *********************************************************************/
 
 #include "vdb2pc_publisher.hpp"
+
+// Explicit instantiation for openvdb::Int32Grid
+template class vdb2pc::ros_utils::VDB2PCPublisher<openvdb::Int32Grid>;
