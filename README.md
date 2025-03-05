@@ -12,8 +12,11 @@ Building
 Place the package in the `remap_ws/src`; then, from `remap_ws`
 
 `$ rosdep init`
+
 `$ rosdep update`
+
 `$ rosdep install --from-paths src/vdb2pc`
+
 `$ colcon build --packages-select vdb2pc`
 
 Content
